@@ -20,7 +20,7 @@ public class Scrapper {
 		List<Manga> resultMangas = new ArrayList<Manga>();
 		
 		try {
-			Document doc = Jsoup.connect(search + mangaKeyword.trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_")).get();
+			Document doc = Jsoup.connect(search + mangaKeyword.trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();
 			Elements mangaElements = doc.select("div.story_item");
 
 			for (Element anElement: mangaElements) {
@@ -43,7 +43,7 @@ public class Scrapper {
 	
 	public static boolean fetchManga(Manga manga) {
 		try {
-			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_")).get();
+			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();
 			Element latestChapterElement = doc.select("div.story_item").first().selectFirst("em.story_chapter").selectFirst("a");
 			
 			String latestChapterTitle = latestChapterElement.ownText();
