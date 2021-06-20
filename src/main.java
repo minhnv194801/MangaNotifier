@@ -25,24 +25,28 @@ public class Main {
 					System.out.print("Input manga keyword: ");
 					buffer = sc.nextLine();
 					List<Manga> foundMangaLst = Scrapper.fetchManga(buffer.trim());
-					System.out.println(foundMangaLst.size());
-					for (Manga aManga: foundMangaLst) {
-						System.out.println("Is '" + aManga.getTitle() + "' is the title you interested in? (Y/N)");
-						buffer = sc.nextLine();
-						if (buffer.trim().toUpperCase().equals("Y")) {
-							if (!mangaLst.contains(aManga)) {
-								mangaLst.add(aManga);
-								dbms.insertManga(aManga);
-								System.out.println(aManga.getTitle() + " has been added!");
-								announceNewRelease(aManga);
-							} else {
-								System.out.println("That manga is already in interested list");
-								announceNewRelease(aManga);
+					if (!foundMangaLst.isEmpty()) {
+						System.out.println("There are " + foundMangaLst.size() + " results matches your keyword");
+						for (Manga aManga: foundMangaLst) {
+							System.out.println("Is '" + aManga.getTitle() + "' is the title you interested in? (Y/N)");
+							buffer = sc.nextLine();
+							if (buffer.trim().toUpperCase().equals("Y")) {
+								if (!mangaLst.contains(aManga)) {
+									mangaLst.add(aManga);
+									dbms.insertManga(aManga);
+									System.out.println(aManga.getTitle() + " has been added!");
+									announceNewRelease(aManga);
+								} else {
+									System.out.println("That manga is already in interested list");
+									announceNewRelease(aManga);
+								}
+							} else if (!buffer.trim().toUpperCase().equals("N")) {
+								System.out.println("Invalid input! Skipped");
+								continue;
 							}
-						} else if (!buffer.trim().toUpperCase().equals("N")) {
-							System.out.println("Invalid input! Skipped");
-							continue;
 						}
+					} else {
+						System.out.println("There are no results matches your keyword");
 					}
 					break;
 				case 2:
