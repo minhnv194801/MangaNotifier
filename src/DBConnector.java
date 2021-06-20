@@ -38,6 +38,15 @@ public class DBConnector {
 			}
 		}
 	}
+	
+	public void deleteManga(Manga mangaToRemove) {
+		String sql = "DELETE FROM manga WHERE manga_title = '" + mangaToRemove.getTitle().replaceAll("'", "''") + "'";
+		try {
+			stmt.executeUpdate(sql);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public List<Manga> fetchManga() {
 		List<Manga> interestedMangaLst = new ArrayList<Manga>();

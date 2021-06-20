@@ -20,7 +20,7 @@ public class Scrapper {
 		List<Manga> resultMangas = new ArrayList<Manga>();
 		
 		try {
-			Document doc = Jsoup.connect(search + mangaKeyword.trim()).get();
+			Document doc = Jsoup.connect(search + mangaKeyword.trim().replaceAll(" ", "_").replaceAll("'", "_")).get();
 			Elements mangaElements = doc.select("div.story_item");
 
 			for (Element anElement: mangaElements) {

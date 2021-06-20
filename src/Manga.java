@@ -19,6 +19,21 @@ public class Manga {
 		this.latestChapterUrl = manga.getLatestUrl();
 	}
 	
+	@Override
+	public String toString() {
+		return mangaTitle + ": " + mangaUrl;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Manga) {
+			Manga aManga = (Manga) o;
+			return mangaTitle.equals(aManga.getTitle());
+		} else {
+			return false;
+		}
+	}
+	
 	public String getTitle() {
 		return this.mangaTitle;
 	}
