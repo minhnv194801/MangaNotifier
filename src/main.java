@@ -1,19 +1,50 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+
+	private static DBConnector dbms;
+	private static List<Manga> mangaLst = new ArrayList<Manga>();
+	private static Scanner sc = new Scanner(System.in);
+	private static boolean newReleaseExists = false;
 
 	public Main() {
 		// TODO Auto-generated constructor stub
 	}
 
 	public static void main(String args[]) {
-		DBConnector dbms = new DBConnector(args[0]);
-		List<Manga> mangaLst = dbms.fetchManga();
-		Scanner sc = new Scanner(System.in);
+		dbms = new DBConnector(args[0]);
 		boolean isExit = false;
 
-		checkNewUpdates(dbms, mangaLst);
+		mangaLst = dbms.fetchManga();
+		
+		class checkNewUpdates implements Runnable {
+			private Manga mangaToCheck;
+			
+			public checkNewUpdates(Manga mangaToCheck) {
+				this.mangaToCheck = mangaToCheck;
+			}
+			
+			public void run() {
+				if (Scrapper.fetchManga(mangaToCheck)) {
+					announceNewRelease(mangaToCheck);
+					newReleaseExists = true;
+					dbms.updateManga(mangaToCheck);
+				}
+			}
+		}
+		
+		for (Manga aManga: mangaLst) { 
+			Thread th = new Thread(new checkNewUpdates(aManga));
+			th.setDaemon(true);
+			th.start();
+		}
+		
+		while (Thread.activeCount() != 1);	
+		if (!newReleaseExists) {
+			System.out.println("You are all up-to-date!");
+		}
 
 		while(!isExit) {
 			showMenu();
@@ -85,21 +116,15 @@ public class Main {
 		sc.close();
 	}
 
-	public static void checkNewUpdates(DBConnector dbms, List<Manga> mangaLst) {
-		boolean newReleaseExists = false;
-
-		for (Manga aManga: mangaLst) {
-			if (Scrapper.fetchManga(aManga)) {
-				announceNewRelease(aManga);
-				newReleaseExists = true;
-				dbms.updateManga(aManga);
-			}
-		}
-
-		if (!newReleaseExists) {
-			System.out.println("You are all up-to-date!");
+	/*
+	public static synchronized void checkNewUpdates(Manga aManga) {
+		if (Scrapper.fetchManga(aManga)) {
+			announceNewRelease(aManga);
+			newReleaseExists = true;
+			dbms.updateManga(aManga);
 		}
 	}
+	*/
 
 	public static void announceNewRelease(Manga aManga) {
 		System.out.println("Check out the latest release of " + aManga.getTitle() + "! " + aManga.getLatestTitle());

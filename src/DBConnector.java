@@ -64,7 +64,7 @@ public class DBConnector {
 		return interestedMangaLst;
 	}
 	
-	public void updateManga(Manga manga) {
+	public synchronized void updateManga(Manga manga) {
 		String sql = "UPDATE manga SET "
 				+ "latest_chapter = " + "'" + manga.getLatestTitle() + "', "
 				+ "latest_chapter_url = " + "'" + manga.getLatestUrl() + "'"
