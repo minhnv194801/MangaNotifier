@@ -1,11 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
+import database.DBConnector;
+import gui.MainMenu;
+import manga.Manga;
+
 public class Main {
 
 	private static DBConnector dbms;
 	private static List<Manga> mangaLst = new ArrayList<Manga>();
-	private static Object lock = new Object();
+	private static MainMenu mainMenu;
 
 	public Main() {
 		// TODO Auto-generated constructor stub
@@ -15,26 +21,12 @@ public class Main {
 		dbms = new DBConnector();
 
 		mangaLst = dbms.fetchManga();
-		
-		MainMenu mainMenu = new MainMenu(dbms, mangaLst);
-		
-		Thread th = new Thread() {
-			@Override
+
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				synchronized(lock) {
-					while (mainMenu.isVisible()) {
-						try {
-							Thread.sleep(1000);
-						} catch (Exception e) {
-							break;
-						}
-					}
-					dbms.close();
-					System.exit(0);
-				}
+				mainMenu = new MainMenu(dbms, mangaLst);
 			}
-		};
-		th.start();
+		});
 	}
 
 }

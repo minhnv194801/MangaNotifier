@@ -1,3 +1,4 @@
+package manga;
 public class Manga {
 
 	private String mangaTitle;

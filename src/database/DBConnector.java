@@ -1,10 +1,12 @@
+package database;
 import java.sql.Connection;
-
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import manga.Manga;
 
 public class DBConnector {
 
@@ -90,16 +92,6 @@ public class DBConnector {
 			stmt.executeUpdate(sql);
 		} catch(Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	public void close() {
-		try {
-			stmt.close();
-			c.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Fail to close the db properly");
 		}
 	}
 }
