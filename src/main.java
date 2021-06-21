@@ -7,13 +7,13 @@ import database.DBConnector;
 import gui.MainMenu;
 import manga.Manga;
 
-public class Main {
+public class main {
 
 	private static DBConnector dbms;
 	private static List<Manga> mangaLst = new ArrayList<Manga>();
 	private static MainMenu mainMenu;
 
-	public Main() {
+	public main() {
 		// TODO Auto-generated constructor stub
 	}
 
