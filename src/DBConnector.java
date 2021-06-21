@@ -1,4 +1,5 @@
 import java.sql.Connection;
+
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -10,13 +11,29 @@ public class DBConnector {
 	private static Connection c;
 	private static Statement stmt;
 	
-	public DBConnector(String password) {
+	public DBConnector() {
 		try {
 			Class.forName("org.postgresql.Driver");
 			c = DriverManager
-					.getConnection("jdbc:postgresql://localhost:5432/MangaDB",
-							"postgres", password);
+					.getConnection("jdbc:postgresql://localhost:5432/",
+							"postgres", "123");
+			String createDB = "CREATE DATABASE mangadb";
 			stmt = c.createStatement();
+			try {
+				stmt.executeUpdate(createDB);
+			} catch (Exception e) { }
+			
+			c = DriverManager
+					.getConnection("jdbc:postgresql://localhost:5432/mangadb",
+							"postgres", "123");
+			String createSql = "CREATE TABLE IF NOT EXISTS manga("
+					+ "	manga_title text PRIMARY KEY,"
+					+ "	manga_url text,"
+					+ "	latest_chapter text,"
+					+ "	latest_chapter_url text"
+					+ ");";
+			stmt = c.createStatement();
+			stmt.execute(createSql);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
