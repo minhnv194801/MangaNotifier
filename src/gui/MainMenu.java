@@ -102,7 +102,7 @@ public class MainMenu {
 		};
 		t.setDaemon(true);
 		t.run();
-		
+
 		JLabel label;
 		ImageIcon icon = new ImageIcon();
 
@@ -173,22 +173,11 @@ public class MainMenu {
 		contentPane.add(rightPanel, BorderLayout.LINE_END);
 
 		for (Manga aManga: mangaLst) { 
-			Thread th = new Thread() {
-				@Override
-				public void run() {
-					if (Scrapper.fetchManga(aManga)) {
-						announceNewRelease(aManga);
-						newReleaseExists = true;
-						dbms.updateManga(aManga);
-					}
-				}
-			};
-			th.setDaemon(true);
-			th.start();
-		}
-
-		while (Thread.activeCount() > 1) {
-			
+			if (Scrapper.fetchManga(aManga)) {
+				announceNewRelease(aManga);
+				newReleaseExists = true;
+				dbms.updateManga(aManga);
+			}
 		}
 
 		if (!newReleaseExists) {
@@ -244,11 +233,4 @@ public class MainMenu {
 		panel.add(label);
 	}
 
-	public boolean isVisible() {
-		if (frame == null) {
-			return true;
-		} else {
-			return frame.isVisible();
-		}
-	}
 }
