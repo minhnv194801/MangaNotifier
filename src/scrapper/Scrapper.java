@@ -12,14 +12,13 @@ import manga.Manga;
 
 public class Scrapper {
 	
-	private static String search = "https://mangakakalot.com/search/story/";
-
 	public Scrapper() {
 		// TODO Auto-generated constructor stub
 	}
 
 	//Use for new manga where we only know keyword
-	public static List<Manga> fetchManga(String mangaKeyword) {
+	public static synchronized List<Manga> fetchManga(String mangaKeyword) {
+		String search = "https://mangakakalot.com/search/story/";
 		List<Manga> resultMangas = new ArrayList<Manga>();
 		
 		try {
@@ -35,6 +34,8 @@ public class Scrapper {
 				String chapterTitle = chapterElement.ownText();
 				String chapterUrl = chapterElement.attr("href");
 				
+				String mangaImage = anElement.selectFirst("img").attr("src");
+				
 				resultMangas.add(new Manga(mangaTitle, mangaUrl, chapterTitle, chapterUrl));
 			}
 		} catch (IOException e) {
@@ -44,7 +45,8 @@ public class Scrapper {
 		return resultMangas;
 	}
 	
-	public static boolean fetchManga(Manga manga) {
+	public static synchronized boolean fetchManga(Manga manga) {
+		String search = "https://mangakakalot.com/search/story/";
 		try {
 			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();
 			Element latestChapterElement = doc.select("div.story_item").first().selectFirst("em.story_chapter").selectFirst("a");
@@ -60,6 +62,7 @@ public class Scrapper {
 			}
 		} catch (IOException e) {
 			System.out.println("Fail to connect the website of " + manga.getTitle());
+			System.out.println(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_"));
 			return false;
 		}
 	}

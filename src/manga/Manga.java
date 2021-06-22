@@ -22,7 +22,7 @@ public class Manga {
 	
 	@Override
 	public String toString() {
-		return mangaTitle + ": " + mangaUrl;
+		return mangaTitle;
 	}
 	
 	@Override

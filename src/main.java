@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import database.DBConnector;
@@ -22,11 +23,6 @@ public class main {
 
 		mangaLst = dbms.fetchManga();
 
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				mainMenu = new MainMenu(dbms, mangaLst);
-			}
-		});
+		mainMenu = new MainMenu(dbms, mangaLst);
 	}
-
 }

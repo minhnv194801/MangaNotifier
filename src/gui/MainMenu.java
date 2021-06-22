@@ -7,13 +7,16 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -41,57 +44,87 @@ public class MainMenu {
 	private static JPanel upperPanel;
 	private static JEditorPane belowPanel;
 	private static boolean newReleaseExists = false;
-	private static List<Thread> threads = new ArrayList<Thread>();
+	private static ListMenu listMenu;
 
-	public MainMenu(DBConnector dbms, List<Manga> mangaLst) {	
+	static {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		JFrame frame = new JFrame();
-		Container contentPane = frame.getContentPane();
-		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("List");
-		JPanel upperPanel = new JPanel();
-		JEditorPane belowPanel = new JEditorPane();
+		frame = new JFrame();
+		contentPane = frame.getContentPane();
+		menuBar = new JMenuBar();
+		menu = new JMenu("List");
+		menu.addMouseListener(new MouseListener() {
+			public void mouseClicked(MouseEvent e) {
+				listMenu.show();
+			}
+			public void mouseExited(MouseEvent e) {
+
+			}
+			public void mouseReleased(MouseEvent e) {
+
+			}
+			public void mousePressed(MouseEvent e) {
+
+			}
+			public void mouseEntered(MouseEvent e) {
+
+			}
+		}); 
+		upperPanel = new JPanel();
+		belowPanel = new JEditorPane();
+		belowPanel.addComponentListener(new ComponentListener() {
+			public void componentResized(ComponentEvent e) { }
+			public void componentMoved(ComponentEvent e) { }
+			public void componentShown(ComponentEvent e) { }
+			public void componentHidden(ComponentEvent e) { }
+		});
 
 		menuBar.add(menu);
 		frame.setJMenuBar(menuBar);
 
-		JLabel label;
-		URL iconUrl = null;
 
-		try {
-			iconUrl = new URL("https://i.pinimg.com/originals/b7/1a/61/b71a61a81142af274b1e03c053df0bdf.jpg");
-		} catch (Exception e) {
-			System.out.println("Fail to get the image");
-		}
-		ImageIcon icon = new ImageIcon(iconUrl);
-		Image resizedIcon = icon.getImage();
-		resizedIcon = resizedIcon.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH);
-		icon = new ImageIcon(resizedIcon);
-		label = new JLabel(icon);
-		upperPanel.add(label);
+		frame.setTitle("SirMangaNox");
+		frame.setSize(1200, 800);
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+	}
+
+	public MainMenu(DBConnector dbms, List<Manga> mangaLst) {	
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				listMenu = new ListMenu(dbms, mangaLst);
+			}
+		};
+		t.setDaemon(true);
+		t.run();
+		
+		JLabel label;
+		ImageIcon icon = new ImageIcon();
+
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon1.jpg"));
+		addIconToPanel(upperPanel, icon);
+
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon2.jpg"));
+		addIconToPanel(upperPanel, icon);
 
 		label = new JLabel("WELCOME!", JLabel.CENTER);
-		label.setFont(new Font("Times News Romans", Font.ROMAN_BASELINE, 60));
+		label.setFont(new Font("Freestyle Script", Font.PLAIN, 100));
+		label.setForeground(Color.WHITE);
 		label.setAlignmentX(Component.CENTER_ALIGNMENT);
 		upperPanel.add(label);
 
-		try {
-			iconUrl = new URL("https://pbs.twimg.com/profile_images/1082020318523412480/E87sUSUc_400x400.jpg");
-		} catch (Exception e) {
-			System.out.println("Fail to get the image");
-		}
-		icon = new ImageIcon(iconUrl);
-		resizedIcon = icon.getImage();
-		resizedIcon = resizedIcon.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH);
-		icon = new ImageIcon(resizedIcon);
-		label = new JLabel(icon);
-		upperPanel.add(label);
-		upperPanel.setBackground(Color.GRAY);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon3.jpg"));
+		addIconToPanel(upperPanel, icon);
+
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon4.jpg"));
+		addIconToPanel(upperPanel, icon);
+
+		upperPanel.setBackground(Color.RED);
 		contentPane.add(upperPanel, BorderLayout.PAGE_START);
 
 		belowPanel.setLayout(new BoxLayout(belowPanel, BoxLayout.Y_AXIS));
@@ -104,17 +137,41 @@ public class MainMenu {
 		JScrollPane scrollPane = new JScrollPane(belowPanel);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
-		
-		JPanel blankPanel1 = new JPanel();
-		blankPanel1.setBackground(Color.gray);
-		JPanel blankPanel2 = new JPanel();
-		blankPanel2.setBackground(Color.gray);
-		JPanel blankPanel3 = new JPanel();
-		blankPanel3.setBackground(Color.gray);
-		contentPane.add(blankPanel1, BorderLayout.LINE_START);
-		contentPane.add(blankPanel2, BorderLayout.LINE_END);
-		contentPane.add(blankPanel3, BorderLayout.PAGE_END);
-		
+
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon5.jpg"));
+		addIconToPanel(leftPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon6.jpg"));
+		addIconToPanel(leftPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon7.jpg"));
+		addIconToPanel(leftPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon8.jpg"));
+		addIconToPanel(leftPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon9.jpg"));
+		addIconToPanel(leftPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon10.jpg"));
+		addIconToPanel(leftPanel, icon);
+		leftPanel.setBackground(Color.RED);
+		contentPane.add(leftPanel, BorderLayout.LINE_START);
+
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon11.jpg"));
+		addIconToPanel(rightPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon12.jpg"));
+		addIconToPanel(rightPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon13.jpg"));
+		addIconToPanel(rightPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon14.jpg"));
+		addIconToPanel(rightPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon15.jpg"));
+		addIconToPanel(rightPanel, icon);
+		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon16.jpg"));
+		addIconToPanel(rightPanel, icon);
+		rightPanel.setBackground(Color.RED);
+		contentPane.add(rightPanel, BorderLayout.LINE_END);
+
 		for (Manga aManga: mangaLst) { 
 			Thread th = new Thread() {
 				@Override
@@ -126,28 +183,25 @@ public class MainMenu {
 					}
 				}
 			};
-			threads.add(th);
 			th.setDaemon(true);
 			th.start();
 		}
 
-		for (Thread thread: threads) {
-			try {
-				thread.join();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		while (Thread.activeCount() > 1) {
+			
 		}
 
 		if (!newReleaseExists) {
 			belowPanel.add(new JLabel("You are all up-to-date!"));
 		}
 
-		frame.setTitle("SirMangaNox");
-		frame.setSize(1200, 800);
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener( new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				dbms.close();
+				System.exit(0);
+			}
+		});
 		frame.setVisible(true);
 	}
 
@@ -180,6 +234,14 @@ public class MainMenu {
 			}
 		});
 		belowPanel.add(hyperlink);
+	}
+
+	public void addIconToPanel(Container panel, ImageIcon icon) {
+		Image resizedIcon = icon.getImage();
+		resizedIcon = resizedIcon.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH);
+		icon.setImage(resizedIcon);
+		JLabel label = new JLabel(icon);
+		panel.add(label);
 	}
 
 	public boolean isVisible() {

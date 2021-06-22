@@ -94,4 +94,14 @@ public class DBConnector {
 			e.printStackTrace();
 		}
 	}
+	
+	public void close() {
+		try {
+			stmt.close();
+			c.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Fail to close the db properly");
+		}
+	}
 }
