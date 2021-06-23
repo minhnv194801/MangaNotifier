@@ -23,6 +23,10 @@ public class main {
 
 		mangaLst = dbms.fetchManga();
 
-		mainMenu = new MainMenu(dbms, mangaLst);
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+		    	mainMenu = new MainMenu(dbms, mangaLst);
+		    }
+		});
 	}
 }

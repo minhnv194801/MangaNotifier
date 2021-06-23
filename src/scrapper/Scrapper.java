@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingWorker;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -49,17 +51,27 @@ public class Scrapper {
 		String search = "https://mangakakalot.com/search/story/";
 		try {
 			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();
-			Element latestChapterElement = doc.select("div.story_item").first().selectFirst("em.story_chapter").selectFirst("a");
+			Elements mangaElements = doc.select("div.story_item");
 			
-			String latestChapterTitle = latestChapterElement.ownText();
-			String latestChapterUrl = latestChapterElement.attr("href");
-			
-			if (latestChapterTitle.equals(manga.getLatestTitle())) {
-				return false;
-			} else {
-				manga.clone(new Manga(manga.getTitle(), manga.getUrl(), latestChapterTitle, latestChapterUrl));
-				return true;
+			for (Element anElement: mangaElements) {
+				String mangaTitle = anElement.selectFirst("h3.story_name").selectFirst("a").ownText();
+				if (!mangaTitle.equals(manga.getTitle())) {
+					continue;
+				}
+				
+				Element chapterElement = anElement.selectFirst("em.story_chapter").selectFirst("a");
+				String latestChapterTitle = chapterElement.ownText();
+				String latestChapterUrl = chapterElement.attr("href");
+				
+				if (latestChapterTitle.equals(manga.getLatestTitle())) {
+					return false;
+				} else {
+					manga.clone(new Manga(manga.getTitle(), manga.getUrl(), latestChapterTitle, latestChapterUrl));
+					return true;
+				}
 			}
+			
+			return false;
 		} catch (IOException e) {
 			System.out.println("Fail to connect the website of " + manga.getTitle());
 			System.out.println(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_"));

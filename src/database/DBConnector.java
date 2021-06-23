@@ -69,7 +69,7 @@ public class DBConnector {
 
 	public List<Manga> fetchManga() {
 		List<Manga> interestedMangaLst = new ArrayList<Manga>();
-		String sql = "SELECT * FROM manga";
+		String sql = "SELECT * FROM manga ORDER BY manga_title";
 		
 		try {
 			ResultSet rs = stmt.executeQuery(sql);
@@ -85,9 +85,9 @@ public class DBConnector {
 	
 	public synchronized void updateManga(Manga manga) {
 		String sql = "UPDATE manga SET "
-				+ "latest_chapter = " + "'" + manga.getLatestTitle() + "', "
-				+ "latest_chapter_url = " + "'" + manga.getLatestUrl() + "'"
-				+ "WHERE manga_title = " + "'" + manga.getTitle() + "'";
+				+ "latest_chapter = " + "'" + manga.getLatestTitle().replaceAll("'", "''") + "', "
+				+ "latest_chapter_url = " + "'" + manga.getLatestUrl().replaceAll("'", "''") + "'"
+				+ "WHERE manga_title = " + "'" + manga.getTitle().replaceAll("'", "''") + "';";
 		try {
 			stmt.executeUpdate(sql);
 		} catch(Exception e) {

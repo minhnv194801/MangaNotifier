@@ -25,29 +25,31 @@ import database.DBConnector;
 import manga.Manga;
 
 public class ListMenu {
-	
-	protected static JFrame frame;
-	protected static Container contentPane;
-	protected static JPanel buttonPanel;
-	protected static JButton addButton;
-	protected static JButton removeButton;
-	protected static JButton visitButton;
+
+	protected JFrame frame;
+	protected Container contentPane;
+	protected JPanel buttonPanel;
+	protected JButton addButton;
+	protected JButton removeButton;
+	protected JButton visitButton;
 	protected static JList listPanel;
 	protected static List<Manga> mangaLst;
 	protected static DBConnector dbms;
-	
-	static {
+	private ResultListMenu resultListMenu;
+
+	public ListMenu() {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		frame = new JFrame();
 		contentPane = frame.getContentPane();
-		
+
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		addButton = new JButton("Add");
+		
 		buttonPanel.add(addButton);
 		removeButton = new JButton("Remove");
 		removeButton.addActionListener(new ActionListener() {
@@ -64,12 +66,6 @@ public class ListMenu {
 		});
 		buttonPanel.add(visitButton);
 		contentPane.add(buttonPanel, BorderLayout.NORTH);
-		
-		listPanel = new JList();
-		listPanel.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-		JScrollPane listScrollPane = new JScrollPane(listPanel);
-		listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		contentPane.add(listScrollPane, BorderLayout.CENTER);
 
 		frame.setTitle("List");
 		frame.setSize(600, 300);
@@ -78,33 +74,56 @@ public class ListMenu {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
-	public ListMenu() {
-		
-	}
 	public ListMenu(DBConnector dbms, List<Manga> mangaLst) {
+		this();
 		this.dbms = dbms;
 		this.mangaLst = mangaLst;
 		
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addItem();
+			}
+		});
+		
+		listPanel = new JList();
+		listPanel.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+		JScrollPane listScrollPane = new JScrollPane(listPanel);
+		listScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		contentPane.add(listScrollPane, BorderLayout.CENTER);
+
+		resultListMenu = new ResultListMenu();
 		listPanel.setListData(mangaLst.toArray());
 	}
-	
-	public static void removeItem() {
+
+	public void addItem() {
+		if (!resultListMenu.isVisible()) {
+			String keyword = JOptionPane.showInputDialog("Please input keyword of the manga you wished to add");
+			if (keyword != null) {
+				resultListMenu.setKeyword(keyword);
+				resultListMenu.show();
+			}
+		} else {
+			resultListMenu.show();
+		}
+	}
+
+	public void removeItem() {
 		int indexToRemove = listPanel.getSelectedIndex();
 		if (indexToRemove < 0) {
 			JOptionPane.showMessageDialog(null, "You have to select a manga!",
-				      "ERROR!", JOptionPane.ERROR_MESSAGE);
+					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		} else {
 			Manga mangaToRemove = mangaLst.remove(indexToRemove);
 			dbms.deleteManga(mangaToRemove);
 			listPanel.setListData(mangaLst.toArray());
 		}
 	}
-	
-	public static void visitItem() {
+
+	public void visitItem() {
 		int selectedItem = listPanel.getSelectedIndex();
 		if (selectedItem < 0) {
 			JOptionPane.showMessageDialog(null, "You have to select a manga!",
-				      "ERROR!", JOptionPane.ERROR_MESSAGE);
+					"ERROR!", JOptionPane.ERROR_MESSAGE);
 		} else {
 			try {
 				Desktop.getDesktop().browse(new URI(mangaLst.get(selectedItem).getUrl())); 
@@ -113,9 +132,8 @@ public class ListMenu {
 			}
 		}
 	}
-	
+
 	public void show() {
 		frame.setVisible(true);
 	}
-
 }

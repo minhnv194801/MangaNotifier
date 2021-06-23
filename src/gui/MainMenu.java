@@ -10,8 +10,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,14 +24,15 @@ import java.util.concurrent.Semaphore;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import database.DBConnector;
@@ -42,29 +41,32 @@ import scrapper.Scrapper;
 
 public class MainMenu {
 
-	private static JFrame frame;
-	private static Container contentPane;
-	private static JMenuBar menuBar;
-	private static JMenu menu;
-	private static JPanel upperPanel;
-	private static JEditorPane belowPanel;
-	private static boolean newReleaseExists = false;
-	private static ListMenu listMenu;
-	private static JButton updateButton;
+	private JFrame frame;
+	private Container contentPane;
+	private JMenuBar menuBar;
+	private JMenu menu;
+	private JPanel upperPanel;
+	private JPanel belowPanel;
+	private JButton updateButton;
+	
+	private WaitingFrame wf;
+	private ListMenu listMenu;
+	
 	private List<Manga> mangaLst;
 	private DBConnector dbms;
+	
 	private Color newColor = new Color(135,206,250);
-
+	private boolean newReleaseExists = false;
 	private static final int MAXIMUM_NUMBER_OF_PERMIT = 10;
 	private Semaphore semaphore = new Semaphore(MAXIMUM_NUMBER_OF_PERMIT);
 
-	static {
+	public MainMenu() {
 		try {
 			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		frame = new JFrame();
 		contentPane = frame.getContentPane();
 		menuBar = new JMenuBar();
@@ -87,13 +89,7 @@ public class MainMenu {
 			}
 		}); 
 		upperPanel = new JPanel();
-		belowPanel = new JEditorPane();
-		belowPanel.addComponentListener(new ComponentListener() {
-			public void componentResized(ComponentEvent e) { }
-			public void componentMoved(ComponentEvent e) { }
-			public void componentShown(ComponentEvent e) { }
-			public void componentHidden(ComponentEvent e) { }
-		});
+		belowPanel = new JPanel();
 
 		menuBar.add(menu);
 		frame.setJMenuBar(menuBar);
@@ -106,10 +102,12 @@ public class MainMenu {
 	}
 
 	public MainMenu(DBConnector dbms, List<Manga> mangaLst) {	
+		this();
 		Thread t = new Thread() {
 			@Override
 			public void run() {
 				listMenu = new ListMenu(dbms, mangaLst);
+				wf = new WaitingFrame();
 			}
 		};
 		t.setDaemon(true);
@@ -143,12 +141,12 @@ public class MainMenu {
 		contentPane.add(upperPanel, BorderLayout.PAGE_START);
 
 		belowPanel.setLayout(new BoxLayout(belowPanel, BoxLayout.Y_AXIS));
-		belowPanel.setEditable(false);
 		label = new JLabel("CHECK OUT NEW UPDATES:", JLabel.LEFT);
 		label.setFont(new Font("Times News Romans", Font.ROMAN_BASELINE, 40));
 		label.setAlignmentX(Component.LEFT_ALIGNMENT);
 		belowPanel.add(label);
 
+		belowPanel.setBackground(Color.WHITE);
 		JScrollPane scrollPane = new JScrollPane(belowPanel);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -192,15 +190,31 @@ public class MainMenu {
 		updateButton = new JButton("Update");
 		updateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.setVisible(false);
-				checkForUpdates();
-				frame.setVisible(true);
+				SwingWorker sw = new SwingWorker() {
+					@Override
+					protected String doInBackground() throws Exception {
+						frame.setVisible(false);
+						wf.setVisible(true);
+						for (int i = 1; i < belowPanel.getComponentCount(); i++) {
+							belowPanel.remove(1);
+						}
+						checkForUpdates();
+						return "Finish";
+					}
+					
+					@Override
+					protected void done() {
+						wf.setVisible(false);
+						JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+						scrollBar.setValue(scrollBar.getMaximum());
+						frame.setVisible(true);
+					}
+				};
+				sw.execute();
 			}
 		});
 		blankPanel.add(updateButton);
 		contentPane.add(blankPanel, BorderLayout.SOUTH);
-
-		checkForUpdates();
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener( new WindowAdapter() {
@@ -209,10 +223,25 @@ public class MainMenu {
 				System.exit(0);
 			}
 		});
-		frame.setVisible(true);
+		
+		SwingWorker sw = new SwingWorker() {
+			@Override
+			protected String doInBackground() throws Exception {
+				wf.setVisible(true);
+				checkForUpdates();
+				return "Finish";
+			}
+			
+			@Override
+			protected void done() {
+				wf.setVisible(false);
+				frame.setVisible(true);
+			}
+		};
+		sw.execute();
 	}
 
-	public static synchronized void announceNewRelease(Manga aManga) {
+	public synchronized void announceNewRelease(Manga aManga) {
 		belowPanel.add(new JLabel("Check out the latest release of " + aManga.getTitle() + "!" ));
 		JLabel hyperlink = new JLabel(aManga.getLatestTitle());
 		hyperlink.setForeground(Color.BLUE.darker());
@@ -251,7 +280,8 @@ public class MainMenu {
 		panel.add(label);
 	}
 
-	public void checkForUpdates() {
+	public void checkForUpdates() {	
+		newReleaseExists = false;
 		for (Manga aManga: mangaLst) { 
 			Thread t = new Thread() {
 				public void run() {
