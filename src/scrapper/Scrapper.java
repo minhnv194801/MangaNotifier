@@ -17,7 +17,7 @@ public class Scrapper {
 	}
 
 	//Use for new manga where we only know keyword
-	public static synchronized List<Manga> fetchManga(String mangaKeyword) {
+	public static List<Manga> fetchManga(String mangaKeyword) {
 		String search = "https://mangakakalot.com/search/story/";
 		List<Manga> resultMangas = new ArrayList<Manga>();
 		
@@ -45,7 +45,7 @@ public class Scrapper {
 		return resultMangas;
 	}
 	
-	public static synchronized boolean fetchManga(Manga manga) {
+	public static boolean fetchManga(Manga manga) {
 		String search = "https://mangakakalot.com/search/story/";
 		try {
 			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();

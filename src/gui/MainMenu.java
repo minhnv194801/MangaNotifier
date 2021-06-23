@@ -5,8 +5,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
@@ -18,9 +21,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,6 +50,13 @@ public class MainMenu {
 	private static JEditorPane belowPanel;
 	private static boolean newReleaseExists = false;
 	private static ListMenu listMenu;
+	private static JButton updateButton;
+	private List<Manga> mangaLst;
+	private DBConnector dbms;
+	private Color newColor = new Color(135,206,250);
+
+	private static final int MAXIMUM_NUMBER_OF_PERMIT = 10;
+	private Semaphore semaphore = new Semaphore(MAXIMUM_NUMBER_OF_PERMIT);
 
 	static {
 		try {
@@ -103,6 +115,9 @@ public class MainMenu {
 		t.setDaemon(true);
 		t.run();
 
+		this.dbms = dbms;
+		this.mangaLst = mangaLst;
+
 		JLabel label;
 		ImageIcon icon = new ImageIcon();
 
@@ -124,7 +139,7 @@ public class MainMenu {
 		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon4.jpg"));
 		addIconToPanel(upperPanel, icon);
 
-		upperPanel.setBackground(Color.RED);
+		upperPanel.setBackground(newColor);
 		contentPane.add(upperPanel, BorderLayout.PAGE_START);
 
 		belowPanel.setLayout(new BoxLayout(belowPanel, BoxLayout.Y_AXIS));
@@ -152,7 +167,7 @@ public class MainMenu {
 		addIconToPanel(leftPanel, icon);
 		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon10.jpg"));
 		addIconToPanel(leftPanel, icon);
-		leftPanel.setBackground(Color.RED);
+		leftPanel.setBackground(newColor);
 		contentPane.add(leftPanel, BorderLayout.LINE_START);
 
 		JPanel rightPanel = new JPanel();
@@ -169,20 +184,23 @@ public class MainMenu {
 		addIconToPanel(rightPanel, icon);
 		icon = new ImageIcon(getClass().getResource("/resources/MainMenuIcons/Icon16.jpg"));
 		addIconToPanel(rightPanel, icon);
-		rightPanel.setBackground(Color.RED);
+		rightPanel.setBackground(newColor);
 		contentPane.add(rightPanel, BorderLayout.LINE_END);
 
-		for (Manga aManga: mangaLst) { 
-			if (Scrapper.fetchManga(aManga)) {
-				announceNewRelease(aManga);
-				newReleaseExists = true;
-				dbms.updateManga(aManga);
+		JPanel blankPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		blankPanel.setBackground(newColor);
+		updateButton = new JButton("Update");
+		updateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.setVisible(false);
+				checkForUpdates();
+				frame.setVisible(true);
 			}
-		}
+		});
+		blankPanel.add(updateButton);
+		contentPane.add(blankPanel, BorderLayout.SOUTH);
 
-		if (!newReleaseExists) {
-			belowPanel.add(new JLabel("You are all up-to-date!"));
-		}
+		checkForUpdates();
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener( new WindowAdapter() {
@@ -227,10 +245,41 @@ public class MainMenu {
 
 	public void addIconToPanel(Container panel, ImageIcon icon) {
 		Image resizedIcon = icon.getImage();
-		resizedIcon = resizedIcon.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH);
+		resizedIcon = resizedIcon.getScaledInstance(95, 95, java.awt.Image.SCALE_SMOOTH);
 		icon.setImage(resizedIcon);
 		JLabel label = new JLabel(icon);
 		panel.add(label);
 	}
 
+	public void checkForUpdates() {
+		for (Manga aManga: mangaLst) { 
+			Thread t = new Thread() {
+				public void run() {
+					boolean permit = true;
+					try {
+						semaphore.acquire();
+					} catch (Exception e) {
+						e.printStackTrace();
+						permit = false;
+					}
+					if (permit) {
+						if (Scrapper.fetchManga(aManga)) {
+							announceNewRelease(aManga);
+							newReleaseExists = true;
+							dbms.updateManga(aManga);
+						}
+						semaphore.release();
+					}
+				}
+			};
+			t.setDaemon(true);
+			t.start();
+		}
+		
+		while (semaphore.availablePermits() != MAXIMUM_NUMBER_OF_PERMIT);
+
+		if (!newReleaseExists) {
+			belowPanel.add(new JLabel("You are all up-to-date!"));
+		}
+	}
 }
