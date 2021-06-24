@@ -36,6 +36,7 @@ import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import database.DBConnector;
+import exceptions.ConnectionException;
 import manga.Manga;
 import scrapper.Scrapper;
 
@@ -293,12 +294,17 @@ public class MainMenu {
 						permit = false;
 					}
 					if (permit) {
-						if (Scrapper.fetchManga(aManga)) {
-							announceNewRelease(aManga);
-							newReleaseExists = true;
-							dbms.updateManga(aManga);
+						try {
+							if (Scrapper.fetchManga(aManga)) {
+								announceNewRelease(aManga);
+								newReleaseExists = true;
+								dbms.updateManga(aManga);
+							}
+						} catch (ConnectionException e) {
+							belowPanel.add(new JLabel(e.getMessage()));
+						} finally {
+							semaphore.release();
 						}
-						semaphore.release();
 					}
 				}
 			};

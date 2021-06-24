@@ -1,10 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import database.DBConnector;
+import exceptions.ConnectionException;
 import gui.MainMenu;
 import manga.Manga;
 
@@ -19,7 +20,13 @@ public class main {
 	}
 
 	public static void main(String args[]) {
-		dbms = new DBConnector();
+		try {
+			dbms = new DBConnector();
+		} catch (ConnectionException e) {
+			JOptionPane.showMessageDialog(null, "Fail to connect to the database! Program will exit",
+					"ERROR!", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
 
 		mangaLst = dbms.fetchManga();
 

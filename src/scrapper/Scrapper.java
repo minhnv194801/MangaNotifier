@@ -3,13 +3,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import exceptions.ConnectionException;
 import manga.Manga;
 
 public class Scrapper {
@@ -19,7 +18,7 @@ public class Scrapper {
 	}
 
 	//Use for new manga where we only know keyword
-	public static List<Manga> fetchManga(String mangaKeyword) {
+	public static List<Manga> fetchManga(String mangaKeyword) throws ConnectionException {
 		String search = "https://mangakakalot.com/search/story/";
 		List<Manga> resultMangas = new ArrayList<Manga>();
 		
@@ -41,13 +40,14 @@ public class Scrapper {
 				resultMangas.add(new Manga(mangaTitle, mangaUrl, chapterTitle, chapterUrl));
 			}
 		} catch (IOException e) {
-			System.out.println("Fail to connect the website");
+			e.printStackTrace();
+			throw new ConnectionException("Fail to connect the website");
 		} 
 		
 		return resultMangas;
 	}
 	
-	public static boolean fetchManga(Manga manga) {
+	public static boolean fetchManga(Manga manga) throws ConnectionException {
 		String search = "https://mangakakalot.com/search/story/";
 		try {
 			Document doc = Jsoup.connect(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_")).get();
@@ -73,9 +73,11 @@ public class Scrapper {
 			
 			return false;
 		} catch (IOException e) {
-			System.out.println("Fail to connect the website of " + manga.getTitle());
-			System.out.println(search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_"));
-			return false;
+			String msg =  null;
+			msg += "Fail to connect the website of " + manga.getTitle() + "\n";
+			msg += search + manga.getTitle().trim().replaceAll("[$&+,:;=?@#|'<>.^*()%!-]", "_").replaceAll(" ", "_") + "\n";
+			e.printStackTrace();
+			throw new ConnectionException(msg);
 		}
 	}
 

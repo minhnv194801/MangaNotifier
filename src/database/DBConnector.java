@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import exceptions.ConnectionException;
 import manga.Manga;
 
 public class DBConnector {
@@ -13,7 +14,7 @@ public class DBConnector {
 	private static Connection c;
 	private static Statement stmt;
 	
-	public DBConnector() {
+	public DBConnector() throws ConnectionException {
 		try {
 			Class.forName("org.postgresql.Driver");
 			c = DriverManager
@@ -38,7 +39,7 @@ public class DBConnector {
 			stmt.execute(createSql);
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.exit(0);
+			throw new ConnectionException("Fail to connect the database");
 		}
 	}
 
