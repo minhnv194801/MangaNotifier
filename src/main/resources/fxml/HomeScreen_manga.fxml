@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="150.0" prefWidth="993.0" xmlns="http://javafx.com/javafx/8">
+    <HBox fx:id="hboxManga" layoutY="6.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+          minWidth="-Infinity" prefHeight="164.0" prefWidth="948.0">
+        <VBox fx:id="imageLogoVbox" alignment="CENTER" prefHeight="78.0" prefWidth="185.0">
+            <ImageView fx:id="image" fitHeight="123.0" fitWidth="128.0" pickOnBounds="true"
+                       preserveRatio="true">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+            </ImageView>
+        </VBox>
+        <VBox prefHeight="99.0" prefWidth="348.0">
+            <opaqueInsets>
+                <Insets/>
+            </opaqueInsets>
+            <HBox.margin>
+                <Insets left="10.0"/>
+            </HBox.margin>
+            <Label disable="true" text="Label" visible="false">
+                <font>
+                    <Font size="33.0"/>
+                </font>
+            </Label>
+            <Label fx:id="title" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
+                   minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="332.0"
+                   text="Title of Manga" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                <font>
+                    <Font name="Segoe UI Bold" size="22.0"/>
+                </font>
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+            </Label>
+            <Button fx:id="btnDelete" defaultButton="true" mnemonicParsing="false" prefHeight="45.0"
+                    prefWidth="166.0" text="Delete">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Button>
+        </VBox>
+        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+              prefHeight="143.0" prefWidth="362.0">
+            <HBox.margin>
+                <Insets/>
+            </HBox.margin>
+            <Label fx:id="chapter21" alignment="BOTTOM_LEFT" contentDisplay="CENTER" disable="true"
+                   maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                   prefHeight="31.0" prefWidth="425.0" text="Chapter 2" textAlignment="CENTER"
+                   textFill="#0073ff" visible="false">
+                <font>
+                    <Font name="Segoe UI Bold" size="20.0"/>
+                </font>
+            </Label>
+            <Label fx:id="chapter1" alignment="BASELINE_LEFT" contentDisplay="CENTER" maxHeight="-Infinity"
+                   maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0"
+                   prefWidth="358.0" text="Chapter 1" textAlignment="CENTER" textFill="#0073ff"
+                   wrapText="true">
+                <font>
+                    <Font name="Segoe UI Bold" size="20.0"/>
+                </font>
+            </Label>
+            <Label fx:id="chapter2" alignment="BOTTOM_LEFT" contentDisplay="CENTER" maxHeight="-Infinity"
+                   maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0"
+                   prefWidth="356.0" text="Chapter 2" textAlignment="CENTER" textFill="#0073ff"
+                   wrapText="true">
+                <font>
+                    <Font name="Segoe UI Bold" size="20.0"/>
+                </font>
+            </Label>
+        </VBox>
+    </HBox>
+</AnchorPane>

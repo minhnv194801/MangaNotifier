@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+       <ImageView fitHeight="768.0" fitWidth="1024.0" pickOnBounds="true" preserveRatio="true">
+          <image>
+              <Image url="@../images/background.jpg" />
+          </image>
+       </ImageView>
+       <ImageView blendMode="MULTIPLY" fitHeight="126.0" fitWidth="179.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+          <image>
+              <Image url="@../images/logo.png" />
+          </image>
+       </ImageView>
+       <Label layoutX="140.0" layoutY="65.0" text="WELCOME" textFill="WHITE">
+           <font>
+               <Font name="Comic Sans MS Bold" size="53.0" />
+           </font>
+       </Label>
+       <Label layoutX="31.0" layoutY="159.0" text="Changes" textFill="WHITE">
+           <font>
+               <Font name="Comic Sans MS Bold" size="24.0" />
+           </font>
+       </Label>
+       <ScrollPane fx:id="changeScrollPane" layoutX="34.0" layoutY="194.0" opacity="0.8" prefHeight="176.0" prefWidth="956.0" style="-fx-background: #87cefa; -fx-border-color: #87cefa;">
+          <content>
+              <VBox fx:id="changeVBox" prefHeight="0.0" prefWidth="936.0" />
+          </content>
+       </ScrollPane>
+       <Label layoutX="33.0" layoutY="397.0" text="My mangas:" textFill="WHITE">
+           <font>
+               <Font name="Comic Sans MS Bold" size="24.0" />
+           </font>
+       </Label>
+       <ScrollPane fx:id="mangaScrollPane" layoutX="31.0" layoutY="432.0" opacity="0.8" prefHeight="304.0" prefWidth="956.0" style="-fx-background: #87cefa; -fx-border-color: #87cefa;">
+          <content>
+              <VBox fx:id="mangaVBox" prefHeight="159.0" prefWidth="950.0" />
+          </content>
+       </ScrollPane>
+       <Button fx:id="addBtn" defaultButton="true" layoutX="868.0" layoutY="400.0" mnemonicParsing="false" text="Add more manga" />
+       <Button fx:id="reloadBtn" defaultButton="true" layoutX="926.0" layoutY="162.0" mnemonicParsing="false" text="Update" />
+       <TextField fx:id="searchTextField" layoutX="184.0" layoutY="400.0" prefHeight="29.0" prefWidth="328.0" promptText="Search..." />
+       <Label fx:id="lastUpdateLabel" layoutX="126.0" layoutY="170.0" prefHeight="25.0" prefWidth="648.0" text="(Last update:)">
+           <font>
+               <Font size="16.0" />
+           </font>
+       </Label>
+       <Label fx:id="lastUpdateLabel1" layoutX="729.0" layoutY="38.0" prefHeight="25.0" prefWidth="108.0" text="Manga source:" textFill="WHITE">
+           <font>
+             <Font size="16.0" />
+           </font>
+       </Label>
+       <ComboBox fx:id="sourceComboBox" layoutX="837.0" layoutY="36.0" prefWidth="150.0" />
+       <ComboBox fx:id="mangaComboBox" layoutX="528.0" layoutY="400.0" prefHeight="29.0" prefWidth="242.0" />
+   </children>
+</AnchorPane>
